@@ -5,7 +5,7 @@ gdf2 = gpd.read_file("plano_universidade.geojson")
 
 # Verificar o CRS do GeoDataFrame
 
-gdf_combined = gpd.GeoDataFrame(pd.concat([gdf1, gdf2], ignore_index=True))
+gdf_combined = gpd.GeoDataFrame(pd.concat([gdf1, gdf2], ignore_index=True)) #juntar os poligonos
 
 print("CRS atual:", gdf_combined.crs)
 

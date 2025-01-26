@@ -1,5 +1,5 @@
 import networkx as nx
-
+import matplotlib.pyplot as plt
 
 # node é o nó
 # edge é a aresta
@@ -37,8 +37,6 @@ G.nodes['R3']['bandwidth'] = 4000000
 G.nodes['R4']['bandwidth'] = 4000000
 
 
-
-
 for node in G.nodes:
     print("Bandwidth do roteador", node, "é:", G.nodes[node]['bandwidth'])
 
@@ -63,11 +61,26 @@ G.edges['R2', 'R3']['delay'] = 85
 G.edges['R2', 'R4']['delay'] = 120
 G.edges['R3', 'R4']['delay'] = 15
 
+pos = {
+    'R1': (1, 2),
+    'R2': (2, 1.5),
+    'R3': (1, 4),
+    'R4': (3, 2),
+}
+
 
 distPeso = nx.shortest_path_length(G, source='R2', weight='delay')
 
 for node in G.nodes:
     print("Distância em relação de R2 ao delay", node, "é", distPeso[node])
+
+
+nx.draw_networkx_edges(G, pos, edge_color='black', width=2)
+nx.draw_networkx_nodes(G, pos, node_size=200, node_color='blue')
+nx.draw_networkx_labels(G, pos, font_size=8, font_color='white')
+
+plt.show()
+
 
 
 """
