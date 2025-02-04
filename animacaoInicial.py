@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
 from dijkstra import dijkstra
+from rip import rip_bellman_ford
+from ospf import ospf_dijkstra
 import matplotlib.image as mpimg
 from matplotlib.path import Path
 from matplotlib.patches import PathPatch
