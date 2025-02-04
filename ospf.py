@@ -9,7 +9,7 @@ def ospf_dijkstra(graph, start):
         if node not in visited:
             visited.add(node)
             for neighbor, weight in graph[node].items():
-                new_cost = cost + weight  # Peso pode ser custo, delay, largura de banda, etc.
+                new_cost = cost + weight['weight']
                 if neighbor not in min_cost or new_cost < min_cost[neighbor]:
                     min_cost[neighbor] = new_cost
                     heapq.heappush(queue, (new_cost, neighbor))

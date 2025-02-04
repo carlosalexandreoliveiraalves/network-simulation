@@ -8,7 +8,7 @@ def dijkstra(graph, start):
         if node not in visited:
             visited.add(node)
             for neighbor, weight in graph[node].items():
-                new_cost = cost + weight
+                new_cost = cost + weight['weight']
                 if neighbor not in min_dist or new_cost < min_dist[neighbor]:
                     min_dist[neighbor] = new_cost
                     heapq.heappush(queue, (new_cost, neighbor))

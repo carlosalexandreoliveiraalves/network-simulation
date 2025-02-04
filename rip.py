@@ -9,7 +9,7 @@ def rip_bellman_ford(graph, start, max_hops=15, updates=5):
     for _ in range(updates):  # Simula as atualizações periódicas (exemplo: 5 rodadas)
         updated = False
         for node in graph:
-            for neighbor in graph[node].items():
+            for neighbor, _ in graph[node].items():  # Corrigido para evitar erro de dicionário
                 if distances[node] + 1 < distances[neighbor] and distances[node] + 1 <= max_hops:
                     distances[neighbor] = distances[node] + 1
                     prev[neighbor] = node
