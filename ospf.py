@@ -8,11 +8,23 @@ def ospf_dijkstra(graph, start):
         (cost, node) = heapq.heappop(queue)
         if node not in visited:
             visited.add(node)
-            for neighbor, weight in graph[node].items():
-                new_cost = cost + weight['weight']
+            
+            for neighbor, data in graph[node].items():  # 'data' é o dicionário de propriedades (como 'weight')
+                weight = data["weight"] if isinstance(data, dict) else data  # Verifica se 'data' é um dicionário
+                new_cost = cost + weight
                 if neighbor not in min_cost or new_cost < min_cost[neighbor]:
                     min_cost[neighbor] = new_cost
                     heapq.heappush(queue, (new_cost, neighbor))
                     prev[neighbor] = node
 
     return min_cost, prev
+
+def get_path(prev, start, end):
+    """ Reconstrói o caminho do nó inicial até o nó final """
+    path = []
+    current = end
+    while current is not None:
+        path.append(current)
+        current = prev.get(current)
+    path.reverse()
+    return path
