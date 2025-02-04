@@ -6,6 +6,9 @@ import time
 from dijkstra import dijkstra, get_path
 from rip import rip_bellman_ford
 from ospf import ospf_dijkstra
+from functions import choose_rip_algorithm
+from functions import choose_ospf_algorithm
+
 
 # Carregar os mapas
 gdf1 = gpd.read_file("mapa_utfpr.geojson")
@@ -35,55 +38,30 @@ pos = {
     "R4": (-25.2993919, -54.1140687),
 }
 
-# Função para calcular o caminho mais curto
-def shortest_path_algorithm(graph, start, algorithm="dijkstra"):
-    if algorithm == "dijkstra":
-        return dijkstra(graph, start)
-    elif algorithm == "ospf":
-        return ospf_dijkstra(graph, start)
-    elif algorithm == "rip":
-        return rip_bellman_ford(graph, start)
-    else:
-        raise ValueError("Algoritmo inválido! Escolha entre 'dijkstra', 'ospf' ou 'rip'.")
-
-# Escolha do algoritmo
-algoritmo_escolhido = "ospf"
-shortest_paths, prev = shortest_path_algorithm(G, 'R1', algoritmo_escolhido)
 
 # Lista de todos os nós
 all_nodes = list(G.nodes)
 
-# Caminho combinado percorrendo todos os nós
-# Caminho combinado percorrendo todos os nós
-# Caminho combinado percorrendo todos os nós sem repetir o último nó errado
-combined_path = []
-current_node = 'R1'
+
+# Escolha do algoritmo
+algoritmo_escolhido = "ospf"
+
+
+current_node = input("Em qual nó deseja começar?")
+
 visited_nodes = {current_node}  # Começa com 'R1'
 
-while len(visited_nodes) < len(all_nodes):
-    shortest_paths, prev = ospf_dijkstra(graph, current_node)
+flag = int(input("Escolha um algoritmo\n"
+                 "1 - OSPF\n"
+                 "2 - RIP\n"))
 
-    # Filtrar nós já visitados antes de escolher o próximo
-    remaining_nodes = [node for node in all_nodes if node not in visited_nodes]
+if flag == 1:
+    combined_path = choose_ospf_algorithm(current_node, visited_nodes, all_nodes, graph)
+    used_algo = "OSPF"
+elif flag == 2:
+    combined_path = choose_rip_algorithm(current_node, visited_nodes, all_nodes, graph)
+    used_algo = "RIP"
 
-    if not remaining_nodes:
-        break  # Todos os nós já foram visitados
-
-    # Escolher o próximo nó com menor distância, garantindo que ele seja válido
-    next_node = min(remaining_nodes, key=lambda x: shortest_paths.get(x, float('inf')))
-
-    # Garantir que o caminho seja construído corretamente
-    path_segment = get_path(prev, current_node, next_node)
-
-    # Evita adicionar o último nó duas vezes
-    if combined_path and path_segment[0] == combined_path[-1]:
-        combined_path.extend(path_segment[1:])
-    else:
-        combined_path.extend(path_segment)
-
-    # Marcar todos os nós do segmento como visitados
-    visited_nodes.update(path_segment)
-    current_node = next_node  # Atualiza o nó atual corretamente
 
 # Verifique o caminho final corrigido
 print(f"Caminho combinado corrigido: {combined_path}")
@@ -157,7 +135,7 @@ frames.append(go.Frame(data=[nodes_final] + edges_dynamic, name="Final"))
 fig = go.Figure(
     data=[nodes_initial] + edges_plot_initial,
     layout=go.Layout(
-        title=f"Rede de Roteadores UTFPR - Algoritmo: {algoritmo_escolhido.upper()}",
+        title=f"Rede de Roteadores UTFPR - Algoritmo: {used_algo}",
         mapbox=dict(
             style="open-street-map",
             zoom=17,
