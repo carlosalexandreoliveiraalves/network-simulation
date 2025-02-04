@@ -54,25 +54,40 @@ shortest_paths, prev = shortest_path_algorithm(G, 'R1', algoritmo_escolhido)
 all_nodes = list(G.nodes)
 
 # Caminho combinado percorrendo todos os nós
+# Caminho combinado percorrendo todos os nós
+# Caminho combinado percorrendo todos os nós sem repetir o último nó errado
 combined_path = []
 current_node = 'R1'
-visited_nodes = set()
+visited_nodes = {current_node}  # Começa com 'R1'
 
 while len(visited_nodes) < len(all_nodes):
     shortest_paths, prev = ospf_dijkstra(graph, current_node)
-    next_node = min(
-        (node for node in all_nodes if node not in visited_nodes),
-        key=lambda x: shortest_paths[x]
-    )
+
+    # Filtrar nós já visitados antes de escolher o próximo
+    remaining_nodes = [node for node in all_nodes if node not in visited_nodes]
+
+    if not remaining_nodes:
+        break  # Todos os nós já foram visitados
+
+    # Escolher o próximo nó com menor distância, garantindo que ele seja válido
+    next_node = min(remaining_nodes, key=lambda x: shortest_paths.get(x, float('inf')))
+
+    # Garantir que o caminho seja construído corretamente
     path_segment = get_path(prev, current_node, next_node)
 
-    if combined_path:
+    # Evita adicionar o último nó duas vezes
+    if combined_path and path_segment[0] == combined_path[-1]:
         combined_path.extend(path_segment[1:])
     else:
         combined_path.extend(path_segment)
 
+    # Marcar todos os nós do segmento como visitados
     visited_nodes.update(path_segment)
-    current_node = next_node
+    current_node = next_node  # Atualiza o nó atual corretamente
+
+# Verifique o caminho final corrigido
+print(f"Caminho combinado corrigido: {combined_path}")
+
 
 # Configuração inicial do mapa
 nodes_initial = go.Scattermapbox(
@@ -92,8 +107,6 @@ for edge in G.edges:
     edges_plot_initial.append(go.Scattermapbox(
         lat=lat, lon=lon, mode="lines",
         line=dict(width=2, color="black"),
-        hoverinfo="text",
-        text=[f"Peso: {G[edge[0]][edge[1]]['weight']}"],
         opacity=0.6, name=f"{edge[0]} ↔ {edge[1]}"
     ))
 
@@ -108,14 +121,13 @@ for i, node in enumerate(combined_path):
             color = "red"
 
         edges_dynamic.append(go.Scattermapbox(
-            lat=[pos[edge[0]][0], pos[edge[1]][0], None],
-            lon=[pos[edge[0]][1], pos[edge[1]][1], None],
-            mode="lines",
-            line=dict(width=3, color=color),
-            hoverinfo="text",
-            text=[f"Peso: {G[edge[0]][edge[1]]['weight']}"],
-            opacity=0.8
-        ))
+        lat=[pos[edge[0]][0], pos[edge[1]][0], None],
+        lon=[pos[edge[0]][1], pos[edge[1]][1], None],
+        mode="lines",
+        line=dict(width=3, color=color),
+        opacity=0.8
+    ))
+
 
     # Mudar a cor do roteador atual para verde
     nodes_dynamic = go.Scattermapbox(
@@ -178,6 +190,24 @@ fig = go.Figure(
     ),
     frames=frames
 )
+
+edge_labels = []
+for edge in G.edges:
+    mid_lat = (pos[edge[0]][0] + pos[edge[1]][0]) / 2
+    mid_lon = (pos[edge[0]][1] + pos[edge[1]][1]) / 2
+    edge_labels.append(go.Scattermapbox(
+        lat=[mid_lat],
+        lon=[mid_lon],
+        mode="markers",
+        marker=dict(size=10, color="rgba(0,0,0,0)"),  # Ponto invisível
+        hoverinfo="text",
+        text=[f"Peso: {G[edge[0]][edge[1]]['weight']}"],  # Exibe o peso ao passar o mouse
+        name=""  # Não mostrar legenda
+    ))
+
+# Adicione esses elementos invisíveis à figura principal
+fig.add_traces(edge_labels)
+
 
 # Salvar e abrir
 fig.write_html("mapa_utfpr.html", auto_open=True)
