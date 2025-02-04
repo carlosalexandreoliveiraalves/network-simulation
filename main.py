@@ -180,11 +180,11 @@ fig = go.Figure(
             showactive=True,
             buttons=[
                 dict(label="▶ Play", method="animate",
-                     args=[None, dict(frame=dict(duration=1000, redraw=True), fromcurrent=True)]),
+                    args=[None, dict(frame=dict(duration=1000, redraw=True), fromcurrent=True)]),
                 dict(label="⏸ Pause", method="animate",
-                     args=[[None], dict(frame=dict(duration=0, redraw=False), mode="immediate" )]),
+                    args=[[None], dict(frame=dict(duration=0, redraw=False), mode="immediate" )]),
                 dict(label="🔄 Reset", method="animate",
-                     args=[["Step 0"], dict(frame=dict(duration=0, redraw=True), mode="immediate", fromcurrent=False)])
+                    args=[["Step 0"], dict(frame=dict(duration=0, redraw=True), mode="immediate", fromcurrent=False)])
             ]
         )]
     ),
@@ -207,7 +207,6 @@ for edge in G.edges:
 
 # Adicione esses elementos invisíveis à figura principal
 fig.add_traces(edge_labels)
-
 
 # Salvar e abrir
 fig.write_html("mapa_utfpr.html", auto_open=True)
