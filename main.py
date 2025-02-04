@@ -179,5 +179,22 @@ fig = go.Figure(
     frames=frames
 )
 
+edge_labels = []
+for edge in G.edges:
+    mid_lat = (pos[edge[0]][0] + pos[edge[1]][0]) / 2
+    mid_lon = (pos[edge[0]][1] + pos[edge[1]][1]) / 2
+    edge_labels.append(go.Scattermapbox(
+        lat=[mid_lat],
+        lon=[mid_lon],
+        mode="markers",
+        marker=dict(size=10, color="rgba(0,0,0,0)"),  # Ponto invisível
+        hoverinfo="text",
+        text=[f"Peso: {G[edge[0]][edge[1]]['weight']}"],  # Exibe o peso ao passar o mouse
+        name=""  # Não mostrar legenda
+    ))
+
+# Adicione esses elementos invisíveis à figura principal
+fig.add_traces(edge_labels)
+
 # Salvar e abrir
 fig.write_html("mapa_utfpr.html", auto_open=True)
