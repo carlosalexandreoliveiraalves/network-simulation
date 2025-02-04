@@ -5,6 +5,8 @@ import numpy as np
 from dijkstra import dijkstra
 import matplotlib.image as mpimg
 from matplotlib.path import Path
+from rip import rip_bellman_ford
+from ospf import ospf_dijkstra
 from matplotlib.patches import PathPatch
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
@@ -72,7 +74,7 @@ def get_path(prev, start, end):
 Aqui é já é calculado o caminho mais curto do nó R1 para todos os nós
 'prev' é um dicionário que serve para armazenar o caminho percorrido
 """
-shortest_paths, prev = dijkstra(graph, 'R1')
+shortest_paths, prev = rip_bellman_ford(graph, 'R1')
 all_nodes = list(graph.keys())
 print("TOdos os nós:", all_nodes) #todos os nós podem ser listados por meio de "list"
 combined_path = [] #Aqui estarão os nós que
@@ -82,7 +84,7 @@ current_node = 'R1'
 visited_nodes = set()
 
 while len(visited_nodes) < len(all_nodes):
-    shortest_paths, prev = dijkstra(graph, current_node)
+    shortest_paths, prev = rip_bellman_ford(graph, current_node)
     next_node = min(
         (node for node in all_nodes if node not in visited_nodes),
         key=lambda x: shortest_paths[x]
