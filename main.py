@@ -1,9 +1,7 @@
 import geopandas as gpd
 import networkx as nx
 import pandas as pd
-import plotly.express as px
 import plotly.graph_objects as go
-import time
 
 # Carregar os mapas
 gdf1 = gpd.read_file("mapa_utfpr.geojson")
@@ -15,15 +13,15 @@ gdf_combinado = gpd.GeoDataFrame(pd.concat([gdf1, gdf2], ignore_index=True))
 # Criar o grafo da rede
 G = nx.Graph()
 
-# Coordenadas dos roteadores
+# Coordenadas dos roteadores (latitude, longitude)
 pos = {
-    "R1": (-54.1138274, -25.3000117),
-    "R2": (-54.1140654, -25.3006548),
-    "R3": (-54.1136217, -25.2998140),
-    "R4": (-54.1140687, -25.2993919),
-    "R5": (-54.1148136, -25.3001103),
-    "R6": (-54.1152010, -25.3003617),
-    "R7": (-54.1146050, -25.3004156),
+    "R1": (-25.3000117, -54.1138274),
+    "R2": (-25.3006548, -54.1140654),
+    "R3": (-25.2998140, -54.1136217),
+    "R4": (-25.2993919, -54.1140687),
+    "R5": (-25.3001103, -54.1148136),
+    "R6": (-25.3003617, -54.1152010),
+    "R7": (-25.3004156, -54.1146050),
 }
 
 # Adicionar os roteadores (nós)
@@ -47,9 +45,9 @@ for edge in edges:
     G.add_edge(*edge)
 
 # Criar os nós (roteadores) no mapa
-nodes = go.Scattermap(
-    lat=[pos[n][1] for n in G.nodes],
-    lon=[pos[n][0] for n in G.nodes],
+nodes = go.Scattermapbox(
+    lat=[pos[n][0] for n in G.nodes],
+    lon=[pos[n][1] for n in G.nodes],
     mode="markers+text",
     marker=dict(size=10, color="blue"),
     text=[n for n in G.nodes],
@@ -60,9 +58,9 @@ nodes = go.Scattermap(
 # Criar as arestas (conexões) no mapa
 edges_plot = []
 for edge in G.edges:
-    lat = [pos[edge[0]][1], pos[edge[1]][1], None]  # Latitude dos pontos
-    lon = [pos[edge[0]][0], pos[edge[1]][0], None]  # Longitude dos pontos
-    edges_plot.append(go.Scattermap(
+    lat = [pos[edge[0]][0], pos[edge[1]][0], None]  # Latitude dos pontos
+    lon = [pos[edge[0]][1], pos[edge[1]][1], None]  # Longitude dos pontos
+    edges_plot.append(go.Scattermapbox(
         lat=lat,
         lon=lon,
         mode="lines",
@@ -83,9 +81,9 @@ for i, node in enumerate(G.nodes):
 
     frames.append(go.Frame(
         data=[
-            go.Scattermap(
-                lat=[pos[n][1] for n in active_nodes],
-                lon=[pos[n][0] for n in active_nodes],
+            go.Scattermapbox(
+                lat=[pos[n][0] for n in active_nodes],
+                lon=[pos[n][1] for n in active_nodes],
                 mode="markers+text",
                 marker=dict(size=12, color="red"),
                 text=active_nodes,
@@ -93,19 +91,26 @@ for i, node in enumerate(G.nodes):
                 name="Roteadores Ativados"
             )
         ] + [
-            go.Scattermap(
-                lat=[pos[e[0]][1], pos[e[1]][1], None],
-                lon=[pos[e[0]][0], pos[e[1]][0], None],
+            go.Scattermapbox(
+                lat=[pos[e[0]][0], pos[e[1]][0], None],
+                lon=[pos[e[0]][1], pos[e[1]][1], None],
                 mode="lines",
                 line=dict(width=2, color="red"),
                 opacity=0.8,
                 name=f"{e[0]} ↔ {e[1]}"
             ) for e in active_edges
         ],
-        name=f"Etapa {i+1}"
+        name=f"Etapa {i+1}",
+        layout=go.Layout(
+            mapbox=dict(
+                style="open-street-map",
+                zoom=17,
+                center=dict(lat=-25.3000117, lon=-54.1138274)
+            )
+        )
     ))
 
-# Criar a figura
+# Criar a figura com animação
 fig = go.Figure(
     data=[nodes] + edges_plot,
     layout=go.Layout(
@@ -117,12 +122,15 @@ fig = go.Figure(
         ),
         updatemenus=[dict(
             type="buttons",
-            showactive=False,
-            buttons=[dict(label="Play", method="animate", args=[None, dict(frame=dict(duration=800, redraw=True), fromcurrent=True)])]
+            showactive=True,
+            buttons=[
+                dict(label="▶ Play", method="animate", args=[None, dict(frame=dict(duration=800, redraw=True), fromcurrent=True)]),
+                dict(label="⏸ Pause", method="animate", args=[[None], dict(frame=dict(duration=0, redraw=False))]),
+                dict(label="🔄 Reset", method="animate", args=[None, dict(frame=dict(duration=800, redraw=True), mode="immediate")])
+            ]
         )]
     ),
     frames=frames
 )
 
 fig.write_html("mapa_utfpr.html", auto_open=True)
-
