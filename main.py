@@ -30,15 +30,9 @@ for router in pos.keys():
 
 # Conectar os roteadores (arestas)
 edges = [
-    ("R1", "R2"),
-    ("R1", "R3"),
-    ("R1", "R4"),
-    ("R1", "R5"),
-    ("R2", "R3"),
-    ("R2", "R6"),
-    ("R3", "R4"),
-    ("R4", "R5"),
-    ("R6", "R7"),
+    ("R1", "R2"), ("R1", "R3"), ("R1", "R4"), ("R1", "R5"),
+    ("R2", "R3"), ("R2", "R6"), ("R3", "R4"),
+    ("R4", "R5"), ("R6", "R7")
 ]
 
 for edge in edges:
@@ -58,26 +52,23 @@ nodes = go.Scattermapbox(
 # Criar as arestas (conexões) no mapa
 edges_plot = []
 for edge in G.edges:
-    lat = [pos[edge[0]][0], pos[edge[1]][0], None]  # Latitude dos pontos
-    lon = [pos[edge[0]][1], pos[edge[1]][1], None]  # Longitude dos pontos
+    lat = [pos[edge[0]][0], pos[edge[1]][0], None]
+    lon = [pos[edge[0]][1], pos[edge[1]][1], None]
     edges_plot.append(go.Scattermapbox(
-        lat=lat,
-        lon=lon,
-        mode="lines",
+        lat=lat, lon=lon, mode="lines",
         line=dict(width=2, color="black"),
-        opacity=0.6,
-        name=f"{edge[0]} ↔ {edge[1]}"
+        opacity=0.6, name=f"{edge[0]} ↔ {edge[1]}"
     ))
 
 # Criar a animação da ativação dos roteadores
 frames = []
-active_nodes = []
-active_edges = []
+active_nodes = set()
+active_edges = set()
 
 for i, node in enumerate(G.nodes):
-    active_nodes.append(node)
-    new_edges = [edge for edge in edges if edge[0] in active_nodes and edge[1] in active_nodes]
-    active_edges.extend(new_edges)
+    active_nodes.add(node)
+    new_edges = {(edge[0], edge[1]) for edge in edges if edge[0] in active_nodes and edge[1] in active_nodes}
+    active_edges.update(new_edges)
 
     frames.append(go.Frame(
         data=[
@@ -86,7 +77,7 @@ for i, node in enumerate(G.nodes):
                 lon=[pos[n][1] for n in active_nodes],
                 mode="markers+text",
                 marker=dict(size=12, color="red"),
-                text=active_nodes,
+                text=list(active_nodes),
                 textposition="top center",
                 name="Roteadores Ativados"
             )
@@ -100,14 +91,7 @@ for i, node in enumerate(G.nodes):
                 name=f"{e[0]} ↔ {e[1]}"
             ) for e in active_edges
         ],
-        name=f"Etapa {i+1}",
-        layout=go.Layout(
-            mapbox=dict(
-                style="open-street-map",
-                zoom=17,
-                center=dict(lat=-25.3000117, lon=-54.1138274)
-            )
-        )
+        name=f"Etapa {i+1}"
     ))
 
 # Criar a figura com animação
@@ -124,9 +108,12 @@ fig = go.Figure(
             type="buttons",
             showactive=True,
             buttons=[
-                dict(label="▶ Play", method="animate", args=[None, dict(frame=dict(duration=800, redraw=True), fromcurrent=True)]),
-                dict(label="⏸ Pause", method="animate", args=[[None], dict(frame=dict(duration=0, redraw=False))]),
-                dict(label="🔄 Reset", method="animate", args=[None, dict(frame=dict(duration=800, redraw=True), mode="immediate")])
+                dict(label="▶ Play", method="animate",
+                     args=[None, dict(frame=dict(duration=800, redraw=True), fromcurrent=True)]),
+                dict(label="⏸ Pause", method="animate",
+                     args=[[None], dict(frame=dict(duration=0, redraw=False))]),
+                dict(label="🔄 Reset", method="animate",
+                     args=[[None], dict(frame=dict(duration=0, redraw=True), fromcurrent=False)]),
             ]
         )]
     ),
