@@ -21,3 +21,13 @@ def rip_bellman_ford(graph, start, max_hops=15, updates=15):
         time.sleep(1)  # Simula o atraso de propagação do RIP
 
     return distances, prev
+
+def get_path(prev, start, end):
+    """ Reconstrói o caminho do nó inicial até o nó final """
+    path = []
+    current = end
+    while current is not None:
+        path.append(current)
+        current = prev.get(current)
+    path.reverse()
+    return path
