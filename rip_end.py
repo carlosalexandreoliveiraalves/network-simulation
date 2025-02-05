@@ -25,11 +25,9 @@ def rip_end_bellman_ford(graph, start, end, max_hops=15, updates=15):
 
         for node in graph:
             for neighbor, data in graph[node].items():
-                weight = data["weight"] if isinstance(data, dict) else 1  # Assume peso 1 se não houver
-                
                 # Relaxamento da aresta
-                if distances[node] < float('inf') and distances[node] + weight < distances[neighbor]:
-                    distances[neighbor] = distances[node] + weight
+                if distances[node] < float('inf') and distances[node] + 1 < distances[neighbor]:
+                    distances[neighbor] = distances[node] + 1
                     prev[neighbor] = node
                     updated = True
 
