@@ -233,10 +233,10 @@ def menu():
 
 
         elif action == 'Adicionar aresta':
-            #node1 = py.prompt(text="Nome do primeiro nó: ", title='1' , default='')
-            node1 = py.confirm(text='Escolha o primeiro nó:', title='1', buttons=optionsNodes)
-            #node2 = py.prompt(text="Nome do segundo nó: ", title='2' , default='')
-            node2 = py.confirm(text='Escolha o segundo nó:', title='2', buttons=optionsNodes)
+            node1 = py.prompt(text="Nome do primeiro nó: ", title='1' , default='')
+            #node1 = py.confirm(text='Escolha o primeiro nó:', title='1', buttons=optionsNodes)
+            node2 = py.prompt(text="Nome do segundo nó: ", title='2' , default='')
+            #node2 = py.confirm(text='Escolha o segundo nó:', title='2', buttons=optionsNodes)
             if node1 in G and node2 in G:
                 G.add_edge(node1, node2)
 
@@ -257,8 +257,8 @@ def menu():
                 print("Um ou ambos os nós não existem.")
 
         elif action == 'Remover Nó':
-            #node_name = py.prompt(text="Nome do nó a ser removido:  ", title='Nome' , default='')
-            node_name = py.confirm(text='Escolha o nó a ser removido:', title='Nó a ser Excluído', buttons=optionsNodes)
+            node_name = py.prompt(text="Nome do nó a ser removido:  ", title='Nome' , default='')
+            #node_name = py.confirm(text='Escolha o nó a ser removido:', title='Nó a ser Excluído', buttons=optionsNodes)
             if node_name in G:
                 # Remove all edges associated with the node first
                 for neighbor in list(G.neighbors(node_name)):
@@ -279,10 +279,10 @@ def menu():
                 print(f"O nó {node_name} não existe.")
 
         elif action == 'Remover Aresta':
-            #node1 = py.prompt(text="Nome do primeiro nó: ", title='1' , default='')
-            node1 = py.confirm(text='Escolha o primeiro nó:', title='1', buttons=optionsNodes)
-            #node2 = py.prompt(text="Nome do segundo nó: ", title='2' , default='')
-            node2 = py.confirm(text='Escolha o segundo nó:', title='2', buttons=optionsNodes)
+            node1 = py.prompt(text="Nome do primeiro nó: ", title='1' , default='')
+            #node1 = py.confirm(text='Escolha o primeiro nó:', title='1', buttons=optionsNodes)
+            node2 = py.prompt(text="Nome do segundo nó: ", title='2' , default='')
+            #node2 = py.confirm(text='Escolha o segundo nó:', title='2', buttons=optionsNodes)
             if (node1, node2) in G.edges or (node2, node1) in G.edges:
                 G.remove_edge(node1, node2)
                 # Also remove the edge from the graph dictionary
