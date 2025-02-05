@@ -12,12 +12,21 @@ def get_path(prev, start, end):
     path.reverse()
     return path
 
+import networkx as nx
 
+def is_isolated(node, graph):
+    """Check if a node is isolated (i.e., has no edges)."""
+    # Convert the dictionary-based graph to a NetworkX graph if it is not already one
+    if not isinstance(graph, nx.Graph):
+        G = nx.Graph(graph)  # Convert to a NetworkX graph
+    else:
+        G = graph
+    
+    return len(list(G.neighbors(node))) == 0  # Returns True if node has no neighbors
 
 def choose_ospf_algorithm(current_node, visited_nodes, all_nodes, graph):
 
     shortest_paths, prev = shortest_paths, prev = ospf_dijkstra(graph, current_node)
-
     combined_path = []
 
 
@@ -25,7 +34,9 @@ def choose_ospf_algorithm(current_node, visited_nodes, all_nodes, graph):
         shortest_paths, prev = ospf_dijkstra(graph, current_node)
 
         # Filtrar nós já visitados antes de escolher o próximo
-        remaining_nodes = [node for node in all_nodes if node not in visited_nodes]
+        #remaining_nodes = [node for node in all_nodes if node not in visited_nodes]
+        # Filter remaining nodes, avoiding isolated nodes
+        remaining_nodes = [node for node in all_nodes if node not in visited_nodes and not is_isolated(node, graph)]
 
         if not remaining_nodes:
             break  # Todos os nós já foram visitados
@@ -49,6 +60,10 @@ def choose_ospf_algorithm(current_node, visited_nodes, all_nodes, graph):
     return combined_path
 
 def choose_rip_algorithm(current_node, visited_nodes, all_nodes, graph):
+    # Check if the starting node is isolated
+    if is_isolated(current_node, graph):
+        print(f"Node {current_node} is isolated. Algorithm stops here.")
+        return [current_node]  # If isolated, return a path containing just the starting node
 
     shortest_paths, prev = shortest_paths, prev = rip_bellman_ford(graph, current_node)
 
@@ -58,7 +73,9 @@ def choose_rip_algorithm(current_node, visited_nodes, all_nodes, graph):
         shortest_paths, prev = rip_bellman_ford(graph, current_node)
 
         # Filtrar nós já visitados antes de escolher o próximo
-        remaining_nodes = [node for node in all_nodes if node not in visited_nodes]
+        #remaining_nodes = [node for node in all_nodes if node not in visited_nodes]
+        # Filter remaining nodes, avoiding isolated nodes
+        remaining_nodes = [node for node in all_nodes if node not in visited_nodes and not is_isolated(node, graph)]
 
         if not remaining_nodes:
             break  # Todos os nós já foram visitados
